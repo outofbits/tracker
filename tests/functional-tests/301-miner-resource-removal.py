@@ -34,7 +34,7 @@ import dbus
 from gi.repository import GLib
 import os
 import shutil
-import unittest2 as ut
+import unittest as ut
 
 MINER_TMP_DIR = cfg.TEST_MONITORED_TMP_DIR
 

@@ -24,8 +24,7 @@ import time
 
 from common.utils import configuration as cfg
 from common.utils.helpers import StoreHelper as StoreHelper
-import unittest2 as ut
-#import unittest as ut
+import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 TEST_INSTANCE_PATTERN = "test://12-transactions-%d"

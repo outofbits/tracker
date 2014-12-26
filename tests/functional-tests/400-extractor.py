@@ -25,7 +25,7 @@ directory (containing xxx.expected files)
 
 from common.utils import configuration as cfg
 from common.utils.extractor import get_tracker_extract_output
-import unittest2 as ut
+import unittest as ut
 import os
 import sys
 

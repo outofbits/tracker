@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Code taken and modified from unittest2 framework (case.py)
+# Code taken and modified from unittest framework (case.py)
 
 # Copyright (c) 1999-2003 Steve Purcell
 # Copyright (c) 2003-2010 Python Software Foundation
@@ -26,8 +26,8 @@ Write values in tracker and check the actual values are written
 on the files. Note that these tests are highly platform dependant.
 """
 import sys
-import unittest2 as ut
-from unittest2.compatibility import wraps
+import unittest as ut
+from unittest.compatibility import wraps
 import configuration as cfg
 
 

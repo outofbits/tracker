@@ -25,7 +25,7 @@ from common.utils.helpers import StoreHelper
 from common.utils import configuration as cfg
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 from common.utils.expectedFailure import expectedFailureBug, expectedFailureJournal
-import unittest2 as ut
+import unittest as ut
 
 
 """

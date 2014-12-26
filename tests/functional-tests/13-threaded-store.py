@@ -29,8 +29,7 @@ import time
 from dbus.mainloop.glib import DBusGMainLoop
 
 from common.utils import configuration as cfg
-import unittest2 as ut
-#import unittest as ut
+import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 MAX_TEST_TIME = 60  # seconds to finish the tests (to avoid infinite waitings)

@@ -32,8 +32,7 @@ from gi.repository import GObject
 from dbus.mainloop.glib import DBusGMainLoop
 
 from common.utils import configuration as cfg
-import unittest2 as ut
-#import unittest as ut
+import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 AMOUNT_OF_TEST_INSTANCES = 100

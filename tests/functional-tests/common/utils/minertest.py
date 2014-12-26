@@ -19,7 +19,7 @@
 #
 from common.utils import configuration as cfg
 from common.utils.system import TrackerSystemAbstraction
-import unittest2 as ut
+import unittest as ut
 
 from gi.repository import GLib
 

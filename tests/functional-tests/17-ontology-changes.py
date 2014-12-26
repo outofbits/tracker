@@ -27,8 +27,7 @@ import time
 import os
 import dbus  # Just for the Exception
 from common.utils import configuration as cfg
-import unittest2 as ut
-#import unittest as ut
+import unittest as ut
 from common.utils.system import TrackerSystemAbstraction as TrackerSystemAbstraction
 from common.utils.system import UnableToBootException as UnableToBootException
 from common.utils.helpers import StoreHelper as StoreHelper
