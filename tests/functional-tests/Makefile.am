@@ -5,7 +5,6 @@ SUBDIRS = \
 	test-writeback-data \
 	test-apps-data \
 	ttl \
-	unittest2 \
 	test-ontologies
 
 configdir = $(datadir)/tracker-tests
