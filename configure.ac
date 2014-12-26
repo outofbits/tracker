@@ -2698,7 +2698,6 @@ AC_CONFIG_FILES([
 	tests/functional-tests/common/Makefile
 	tests/functional-tests/common/utils/configuration.py
 	tests/functional-tests/common/utils/Makefile
-	tests/functional-tests/unittest2/Makefile
 	tests/functional-tests/test-extraction-data/Makefile
 	tests/functional-tests/test-extraction-data/audio/Makefile
 	tests/functional-tests/test-extraction-data/images/Makefile
