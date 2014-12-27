@@ -67,6 +67,8 @@ class Helper:
         self.bus = None
         self.bus_admin = None
 
+        self.available = False
+
     def install_glib_excepthook(self, loop):
         """
         Handler to abort test if an exception occurs inside the GLib main loop.
@@ -81,6 +83,7 @@ class Helper:
 
     def _get_bus(self):
         if self.bus is not None:
+            log ("--- return existing bus %s" % self.bus)
             return
 
         self.loop = GObject.MainLoop()
@@ -171,10 +174,19 @@ class Helper:
         self.process_watch_timeout = GLib.timeout_add(
             200, self._process_watch_cb)
 
+        GLib.timeout_add_seconds(REASONABLE_TIMEOUT, self.loop.quit)
+
         self.abort_if_process_exits_with_status_0 = True
 
         # Run the loop until the bus name appears, or the process dies.
         self.loop.run()
+
+        if not self.available:
+            import pdb
+            pdb.set_trace()
+            raise Exception(
+                "%s did not appear on message bus after %i seconds." % (
+                self.BUS_NAME, REASONABLE_TIMEOUT))
 
         self.abort_if_process_exits_with_status_0 = False
 
@@ -197,6 +209,8 @@ class Helper:
                     self.process.wait()
 
         log("[%s] stopped." % self.PROCESS_NAME)
+        self.loop.run()
+
         # Disconnect the signals of the next start we get duplicated messages
         self.bus._clean_up_signal_match(self.name_owner_match)
 
