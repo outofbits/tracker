@@ -43,13 +43,14 @@ class TrackerStoreCollationTests (CommonTrackerStoreTest):
         Each test append to this list the used URIS, so they can be removed
         in the tearDown
         """
+        super(TrackerStoreCollationTests, self).setUp()
         self.clean_up_instances = []
 
     def tearDown(self):
         for uri in self.clean_up_instances:
             self.tracker.update("DELETE { <%s> a rdfs:Resource. }" % (uri))
         self.clean_up_instances = []
-        time.sleep(1)
+        super(TrackerStoreCollationTests, self).tearDown()
 
     def __insert_text(self, text):
         uri = "test://collation-01-%d" % (random.randint(1, 1000))

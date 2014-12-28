@@ -27,8 +27,9 @@ on the files. Note that these tests are highly platform dependant.
 """
 import sys
 import unittest as ut
-from unittest.compatibility import wraps
 import configuration as cfg
+
+from functools import wraps
 
 
 def expectedFailureBug(bugnumber):

@@ -51,6 +51,8 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
     """
 
     def setUp(self):
+        super(TrackerStoreSignalsTests, self).setUp()
+
         self.clean_up_list = []
         self.loop = GObject.MainLoop()
         dbus_loop = DBusGMainLoop(set_as_default=True)
@@ -66,6 +68,8 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
             self.tracker.update("DELETE { <%s> a rdfs:Resource }" % uri)
 
         self.clean_up_list = []
+
+        super(TrackerStoreSignalsTests, self).tearDown()
 
     def __connect_signal(self):
         """

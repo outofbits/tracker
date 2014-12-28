@@ -43,6 +43,8 @@ class TrackerTransactionsTest (CommonTrackerStoreTest):
     """
 
     def setUp(self):
+        super(TrackerTransactionsTest, self).setUp()
+
         self.instance_counter = 0
 
     def tearDown(self):
@@ -51,6 +53,8 @@ class TrackerTransactionsTest (CommonTrackerStoreTest):
         self.tracker.update(delete_sparql,
                             timeout=60000)
         self.instance_counter = 0
+
+        super(TrackerTransactionsTest, self).tearDown()
 
     def insert_and_commit(self, number):
         insert_sparql = "INSERT {\n"

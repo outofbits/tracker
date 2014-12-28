@@ -80,15 +80,15 @@ class TrackerSystemAbstraction:
             for key, value in contents.iteritems():
                 dconf.write(key, value)
 
-    def tracker_store_testing_start(self, confdir=None, ontodir=None):
+    def tracker_store_testing_start(self, config=None, ontodir=None, dbus_address=None):
         """
         Stops any previous instance of the store, calls set_up_environment,
         and starts a new instances of the store
         """
-        self.set_up_environment(confdir, ontodir)
+        self.set_up_environment(config, ontodir)
 
         self.store = helpers.StoreHelper()
-        self.store.start()
+        self.store.start(dbus_address)
 
     def tracker_store_start(self):
         self.store.start()
@@ -151,22 +151,21 @@ class TrackerSystemAbstraction:
         assert self.store
         self.store.stop()
 
-    def tracker_miner_fs_testing_start(self, confdir=None):
+    def tracker_miner_fs_testing_start(self, config, dbus_address):
         """
         Stops any previous instance of the store and miner, calls set_up_environment,
         and starts a new instance of the store and miner-fs
         """
-        self.set_up_environment(confdir, None)
+        self.set_up_environment(config, None)
 
-        # Start also the store. DBus autoactivation ignores the env variables.
         self.store = helpers.StoreHelper()
-        self.store.start()
+        self.store.start(dbus_address)
 
         self.extractor = helpers.ExtractorHelper()
-        self.extractor.start()
+        self.extractor.start(dbus_address)
 
         self.miner_fs = helpers.MinerFsHelper()
-        self.miner_fs.start()
+        self.miner_fs.start(dbus_address)
 
     def tracker_miner_fs_testing_stop(self):
         """
@@ -176,20 +175,21 @@ class TrackerSystemAbstraction:
         self.miner_fs.stop()
         self.store.stop()
 
-    def tracker_writeback_testing_start(self, confdir=None):
+    def tracker_writeback_testing_start(self, config, dbus_address):
         # Start the miner-fs (and store) and then the writeback process
-        self.tracker_miner_fs_testing_start(confdir)
+        self.tracker_miner_fs_testing_start(config, dbus_address)
         self.writeback = helpers.WritebackHelper()
-        self.writeback.start()
+        self.writeback.start(dbus_address)
 
     def tracker_writeback_testing_stop(self):
         # Tracker write must have been started before
         self.writeback.stop()
+
         self.tracker_miner_fs_testing_stop()
 
-    def tracker_all_testing_start(self, confdir=None):
+    def tracker_all_testing_start(self, config, dbus_address):
         # This will start all miner-fs, store and writeback
-        self.tracker_writeback_testing_start(confdir)
+        self.tracker_writeback_testing_start(config, dbus_address)
 
     def tracker_all_testing_stop(self):
         # This will stop all miner-fs, store and writeback

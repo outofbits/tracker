@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
+
 from common.utils import configuration as cfg
 from common.utils.system import TrackerSystemAbstraction
 from common.utils.helpers import log
@@ -27,6 +28,9 @@ from gi.repository import GLib
 import shutil
 import os
 import time
+
+import common
+
 
 APPLICATIONS_TMP_DIR = os.path.join(
     cfg.TEST_MONITORED_TMP_DIR, "test-applications-monitored")
@@ -48,49 +52,9 @@ SLOWCOPY_RATE = 1024
 import subprocess
 import tempfile
 
-class TrackerTestCase(ut.TestCase):
-    '''Base class for all Tracker functional tests.
 
-    This class handles isolating each test case from both other test cases and
-    from the host system.
+class CommonTrackerApplicationTest (common.TestCase):
 
-    '''
-    def setUp(self):
-        self._old_environ = os.environ
-
-        self.fake_home()
-        self.launch_session_bus()
-
-    def fake_home(self):
-        self.tempdir = tempfile.mkdtemp(prefix='tracker-test')
-
-        # We need to use the actual home directory for some tests because
-        # Tracker will explicitly ignore files in /tmp ...
-        os.environ['REAL_HOME'] = os.path.expanduser('~')
-
-        # ... but /tmp is preferred for test data, to avoid leaving debris
-        # in the filesystem
-        os.environ['HOME'] = self.tempdir
-        log("HOME=%s" % self.tempdir)
-
-    def launch_session_bus(self):
-        self.dbus_process = subprocess.Popen(
-            ["dbus-daemon", "--session", "--print-address=1", "--fork"],
-            stdout=subprocess.PIPE)
-        self.dbus_address = self.dbus_process.stdout.readline().rstrip()
-
-        os.environ['DBUS_SESSION_BUS_ADDRESS'] = self.dbus_address
-        log("DBUS_SESSION_BUS_ADDRESS=%s" % self.dbus_address)
-
-    def tearDown(self):
-        log('Stopping D-Bus daemon (PID %i) ...' % (self.dbus_process.pid))
-        self.dbus_process.terminate()
-        self.dbus_process.wait()
-
-        os.environ = self._old_environ
-
-
-class CommonTrackerApplicationTest(TrackerTestCase):
     def get_urn_count_by_url(self, url):
         select = """
         SELECT ?u WHERE { ?u nie:url \"%s\" }
@@ -155,7 +119,7 @@ class CommonTrackerApplicationTest(TrackerTestCase):
                                         "test-apps-data")
 
         self.system = TrackerSystemAbstraction()
-        self.system.tracker_all_testing_start(CONF_OPTIONS)
+        self.system.tracker_all_testing_start(CONF_OPTIONS, self.dbus_address)
 
         # Returns when ready
         self.tracker = self.system.store
@@ -163,10 +127,11 @@ class CommonTrackerApplicationTest(TrackerTestCase):
         log("Ready to go!")
 
     def tearDown(self):
-        self.system.tracker_all_testing_stop ()
+        # print "Stopping the daemon in test mode (Doing nothing now)"
+        self.system.tracker_all_testing_stop()
 
         # Remove monitored directory
-        if (os.path.exists (APPLICATIONS_TMP_DIR)):
-            shutil.rmtree (APPLICATIONS_TMP_DIR)
+        if (os.path.exists(APPLICATIONS_TMP_DIR)):
+            shutil.rmtree(APPLICATIONS_TMP_DIR)
 
         super(CommonTrackerApplicationTest, self).tearDown()

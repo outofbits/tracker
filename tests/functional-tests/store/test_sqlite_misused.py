@@ -38,6 +38,8 @@ class TestSqliteMisused (CommonTrackerStoreTest):
     """
 
     def setUp(self):
+        super(CommonTrackerStoreTest, self).setUp()
+
         self.main_loop = GObject.MainLoop()
         self.files_counter = 0
 

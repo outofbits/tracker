@@ -40,6 +40,8 @@ class TestDistanceFunctions (CommonTrackerStoreTest):
     """
 
     def setUp(self):
+        super(TestDistanceFunctions, self).setUp()
+
         self.counter = 0
         for lat, log in POINT_COORDS:
             insert = """
@@ -60,6 +62,8 @@ class TestDistanceFunctions (CommonTrackerStoreTest):
             }
             """ % ("point://test/point/" + str (i))
             self.tracker.update(delete)
+
+        super(TestDistanceFunctions, self).tearDown()
 
     def get_distance_between_points(self, sum_func, id1, id2):
 

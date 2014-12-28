@@ -51,6 +51,8 @@ class TestThreadedStore (CommonTrackerStoreTest):
     """
 
     def setUp(self):
+        super(TestThreadedStore, self).setUp()
+
         self.main_loop = GObject.MainLoop()
         self.simple_queries_counter = AMOUNT_SIMPLE_QUERIES
         self.simple_queries_answers = 0

@@ -38,6 +38,8 @@ class TestCoalesce (CommonTrackerStoreTest):
     """
 
     def setUp(self):
+        super(TestCoalesce, self).setUp()
+
         self.resource_uri = "contact://test_group_concat"
 
         #
@@ -56,6 +58,8 @@ class TestCoalesce (CommonTrackerStoreTest):
         DELETE { <%s> a rdfs:Resource. }
         """ % (self.resource_uri)
         self.tracker.update(delete)
+
+        super(TestCoalesce, self).tearDown()
 
     def test_coalesce_first_fine(self):
         """

@@ -28,6 +28,9 @@ from common.utils import configuration as cfg
 from common.utils.helpers import log
 import time
 
+import common
+
+
 TEST_FILE_JPEG = "writeback-test-1.jpeg"
 TEST_FILE_TIFF = "writeback-test-2.tif"
 TEST_FILE_PNG = "writeback-test-4.png"
@@ -49,7 +52,7 @@ def uri(filename):
     return "file://" + os.path.join(WRITEBACK_TMP_DIR, filename)
 
 
-class CommonTrackerWritebackTest (ut.TestCase):
+class CommonTrackerWritebackTest (common.TestCase):
 
     """
     Superclass to share methods. Shouldn't be run by itself.

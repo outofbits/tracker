@@ -33,6 +33,8 @@ from common.utils.system import UnableToBootException as UnableToBootException
 from common.utils.helpers import StoreHelper as StoreHelper
 from common.utils.expectedFailure import expectedFailureBug, expectedFailureJournal
 
+import common
+
 
 RDFS_RANGE = "http://www.w3.org/2000/01/rdf-schema#range"
 XSD_DATETIME = "http://www.w3.org/2001/XMLSchema#dateTime"
@@ -45,7 +47,7 @@ import re
 import time
 
 
-class OntologyChangeTestTemplate (ut.TestCase):
+class OntologyChangeTestTemplate (common.testcase.TrackerTestCase):
 
     """
     Template class for the ontology changes tests. The tests are subclasses
@@ -70,10 +72,14 @@ class OntologyChangeTestTemplate (ut.TestCase):
                                 "test-ontologies", param)
 
     def setUp(self):
+        super(OntologyChangeTestTemplate, self).setUp()
+
         self.system = TrackerSystemAbstraction()
 
     def tearDown(self):
         self.system.tracker_store_testing_stop()
+
+        super(OntologyChangeTestTemplate, self).tearDown()
 
     def template_test_ontology_change(self):
 

@@ -50,13 +50,16 @@ class TrackerStoreStatisticsTests (CommonTrackerStoreTest):
         Each test append to this list the used URIS, so they can be removed
         in the tearDown
         """
+        super(TrackerStoreStatisticsTests, self).setUp()
+
         self.clean_up_instances = []
 
     def tearDown(self):
         for uri in self.clean_up_instances:
             self.tracker.update("DELETE { <%s> a rdfs:Resource. }" % (uri))
         self.clean_up_instances = []
-        time.sleep(1)
+
+        super(TrackerStoreStatisticsTests, self).tearDown()
 
     def test_stats_01_insert_base_class(self):
         self.clean_up_instances.append("test://stats-01")

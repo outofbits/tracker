@@ -47,6 +47,8 @@ class TestConcurrentQuery (CommonTrackerStoreTest):
     """
 
     def setUp(self):
+        super(TestConcurrentQuery, self).setUp()
+
         self.main_loop = GObject.MainLoop()
 
         self.mock_data_insert()
@@ -59,6 +61,8 @@ class TestConcurrentQuery (CommonTrackerStoreTest):
                 i, i)
         query += "}"
         self.tracker.update(query)
+
+        super(TestConcurrentQuery, self).tearDown()
 
     def mock_data_delete(self):
         query = "DELETE {\n"

@@ -81,17 +81,13 @@ class Helper:
             sys.exit()
         sys.excepthook = new_hook
 
-    def _get_bus(self):
-        if self.bus is not None:
-            log ("--- return existing bus %s" % self.bus)
-            return
-
+    def _get_bus(self, dbus_address):
         self.loop = GObject.MainLoop()
 
         self.install_glib_excepthook(self.loop)
 
         dbus_loop = DBusGMainLoop(set_as_default=True)
-        self.bus = dbus.SessionBus(dbus_loop)
+        self.bus = dbus.bus.BusConnection(dbus_address, mainloop=dbus_loop)
 
         obj = self.bus.get_object("org.freedesktop.DBus",
                                   "/org/freedesktop/DBus")
@@ -151,12 +147,13 @@ class Helper:
         self.timeout_id = None
         return False
 
-    def start(self):
+    def start(self, dbus_address):
         """
         Start an instance of process and wait for it to appear on the bus.
         """
 
-        self._get_bus()
+        if self.bus is None:
+            self._get_bus(dbus_address)
 
         if (self.bus_admin.NameHasOwner(self.BUS_NAME)):
             raise Exception(
@@ -186,7 +183,7 @@ class Helper:
             pdb.set_trace()
             raise Exception(
                 "%s did not appear on message bus after %i seconds." % (
-                self.BUS_NAME, REASONABLE_TIMEOUT))
+                    self.BUS_NAME, REASONABLE_TIMEOUT))
 
         self.abort_if_process_exits_with_status_0 = False
 
@@ -238,8 +235,8 @@ class StoreHelper (Helper):
 
     graph_updated_handler_id = 0
 
-    def start(self):
-        Helper.start(self)
+    def start(self, dbus_address):
+        Helper.start(self, dbus_address)
 
         tracker = self.bus.get_object(cfg.TRACKER_BUSNAME,
                                       cfg.TRACKER_OBJ_PATH)
@@ -635,8 +632,8 @@ class MinerFsHelper (Helper):
     if cfg.haveMaemo:
         FLAGS.append('--disable-miner=userguides')
 
-    def start(self):
-        Helper.start(self)
+    def start(self, dbus_address):
+        Helper.start(self, dbus_address)
 
         bus_object = self.bus.get_object(cfg.MINERFS_BUSNAME,
                                          cfg.MINERFS_OBJ_PATH)
