@@ -23,9 +23,9 @@ import dbus  # For the exception handling
 from common.utils.system import TrackerSystemAbstraction
 from common.utils.helpers import StoreHelper
 from common.utils import configuration as cfg
-from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 from common.utils.expectedFailure import expectedFailureBug, expectedFailureJournal
-import unittest as ut
+
+import storetest
 
 
 """
@@ -33,11 +33,9 @@ Call backup, restore, force the journal replay and check the data is correct aft
 """
 
 
-class BackupRestoreTest (CommonTrackerStoreTest):
+class BackupRestoreTest (storetest.TrackerStoreTest):
 
-    """
-    Backup and restore to/from valid/invalid files
-    """
+    '''Backup and restore to/from valid/invalid files'''
 
     def setUp(self):
         self.TEST_INSTANCE = "test://backup-restore/1"
@@ -47,209 +45,211 @@ class BackupRestoreTest (CommonTrackerStoreTest):
         if (os.path.exists(self.BACKUP_FILE)):
             os.unlink(self.BACKUP_FILE)
 
-    def __insert_test_instance(self):
-        self.tracker.update("INSERT { <%s> a nco:Contact; nco:fullname 'test-backup' } "
-                            % (self.TEST_INSTANCE))
+        def __insert_test_instance(self):
+            self.tracker.update("INSERT { <%s> a nco:Contact; nco:fullname 'test-backup' } "
+                                % (self.TEST_INSTANCE))
 
-    def __delete_test_instance(self):
-        self.tracker.update(
-            "DELETE { <%s> a rdfs:Resource } " % (self.TEST_INSTANCE))
+        def __delete_test_instance(self):
+            self.tracker.update(
+                "DELETE { <%s> a rdfs:Resource } " % (self.TEST_INSTANCE))
 
-    def __is_test_instance_there(self):
-        result = self.tracker.query(
-            "SELECT ?u WHERE { ?u a nco:Contact; nco:fullname 'test-backup'}")
-        if (len(result) == 1 and len(result[0]) == 1 and result[0][0] == self.TEST_INSTANCE):
-            return True
-        return False
+        def __is_test_instance_there(self):
+            result = self.tracker.query(
+                "SELECT ?u WHERE { ?u a nco:Contact; nco:fullname 'test-backup'}")
+            if (len(result) == 1 and len(result[0]) == 1 and result[0][0] == self.TEST_INSTANCE):
+                return True
+            return False
 
-    def test_backup_01(self):
-        """
-        Inserted data is restored after backup
+        def test_backup_01(self):
+            """
+            Inserted data is restored after backup
 
-        1.Insert contact
-        2.Take backup.
-        3.Delete contact. (check it is not there)
-        4.Restore the file.
-        5.Check the contact is back there
-        """
+            1.Insert contact
+            2.Take backup.
+            3.Delete contact. (check it is not there)
+            4.Restore the file.
+            5.Check the contact is back there
+            """
 
-        self.__insert_test_instance()
-        instances_before = self.tracker.count_instances("nco:Contact")
+            self.__insert_test_instance()
+            instances_before = self.tracker.count_instances("nco:Contact")
 
-        self.tracker.backup(self.BACKUP_FILE)
+            self.tracker.backup(self.BACKUP_FILE)
 
-        self.__delete_test_instance()
-        instances_now = self.tracker.count_instances("nco:Contact")
+            self.__delete_test_instance()
+            instances_now = self.tracker.count_instances("nco:Contact")
 
-        self.assertEquals(instances_before - 1, instances_now)
+            self.assertEquals(instances_before - 1, instances_now)
 
-        self.tracker.restore(self.BACKUP_FILE)
+            self.tracker.restore(self.BACKUP_FILE)
 
-        instances_after = self.tracker.count_instances("nco:Contact")
+            instances_after = self.tracker.count_instances("nco:Contact")
 
-        self.assertEquals(instances_before, instances_after)
-        self.assertTrue(self.__is_test_instance_there())
+            self.assertEquals(instances_before, instances_after)
+            self.assertTrue(self.__is_test_instance_there())
 
-        # Clean the DB for the next test
-        self.__delete_test_instance()
+            # Clean the DB for the next test
+            self.__delete_test_instance()
 
-    def test_backup_02(self):
-        """
-        Data inserted after backup is lost in restore
+        def test_backup_02(self):
+            """
+            Data inserted after backup is lost in restore
 
-        1.Take backup of db.
-        2.Insert a contact.
-        3.Restore the db.
-        4.Search for the contact inserted.
-        """
+            1.Take backup of db.
+            2.Insert a contact.
+            3.Restore the db.
+            4.Search for the contact inserted.
+            """
 
-        # Precondition: test backup contact shouldn't be there
-        self.assertFalse(self.__is_test_instance_there())
+            # Precondition: test backup contact shouldn't be there
+            self.assertFalse(self.__is_test_instance_there())
 
-        self.tracker.backup(self.BACKUP_FILE)
+            self.tracker.backup(self.BACKUP_FILE)
 
-        self.__insert_test_instance()
-        self.assertTrue(self.__is_test_instance_there())
+            self.__insert_test_instance()
+            self.assertTrue(self.__is_test_instance_there())
 
-        self.tracker.restore(self.BACKUP_FILE)
+            self.tracker.restore(self.BACKUP_FILE)
 
-        self.assertFalse(self.__is_test_instance_there())
+            self.assertFalse(self.__is_test_instance_there())
 
-    def test_backup_03(self):
-        """
-        Restore from a random text file
-        """
-        TEST_FILE = os.path.join(cfg.TEST_TMP_DIR, "trash_file")
-        trashfile = open(TEST_FILE, "w")
-        trashfile.write(
-            "Here some useless text that obviously is NOT a backup")
-        trashfile.close()
+        def test_backup_03(self):
+            """
+            Restore from a random text file
+            """
+            TEST_FILE = os.path.join(cfg.TEST_TMP_DIR, "trash_file")
+            trashfile = open(TEST_FILE, "w")
+            trashfile.write(
+                "Here some useless text that obviously is NOT a backup")
+            trashfile.close()
 
-        self.assertRaises(dbus.DBusException,
-                          self.tracker.restore,
-                          "file://" + TEST_FILE)
-        os.unlink(TEST_FILE)
+            self.assertRaises(dbus.DBusException,
+                              self.tracker.restore,
+                              "file://" + TEST_FILE)
+            os.unlink(TEST_FILE)
 
-    def test_backup_04(self):
-        """
-        Restore from a random binary file
-        """
-        TEST_FILE = os.path.join(cfg.TEST_TMP_DIR, "trash_file.dat")
+        def test_backup_04(self):
+            """
+            Restore from a random binary file
+            """
+            TEST_FILE = os.path.join(cfg.TEST_TMP_DIR, "trash_file.dat")
 
-        import struct
-        trashfile = open(TEST_FILE, "wb")
-        for n in range(0, 50):
-            data = struct.pack('i', n)
-            trashfile.write(data)
-        trashfile.close()
+            import struct
+            trashfile = open(TEST_FILE, "wb")
+            for n in range(0, 50):
+                data = struct.pack('i', n)
+                trashfile.write(data)
+            trashfile.close()
 
-        instances_before = self.tracker.count_instances(
-            "nie:InformationElement")
-        self.assertRaises(dbus.DBusException,
-                          self.tracker.restore,
-                          "file://" + TEST_FILE)
+            instances_before = self.tracker.count_instances(
+                "nie:InformationElement")
+            self.assertRaises(dbus.DBusException,
+                              self.tracker.restore,
+                              "file://" + TEST_FILE)
 
-        os.unlink(TEST_FILE)
+            os.unlink(TEST_FILE)
 
-    def test_backup_05(self):
-        """
-        Take backup of db to a invalid path.
-        Expected: Backup should not be taken and tracker should behave normally.
-        """
-        self.assertRaises(dbus.DBusException,
-                          self.tracker.backup,
-                          "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
+        def test_backup_05(self):
+            """
+            Take backup of db to a invalid path.
+            Expected: Backup should not be taken and tracker should behave normally.
+            """
+            self.assertRaises(dbus.DBusException,
+                              self.tracker.backup,
+                              "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
 
-    def test_backup_06(self):
-        """
-        Try to restore an invalid path
-        """
-        self.assertRaises(dbus.DBusException,
-                          self.tracker.restore,
-                          "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
+        def test_backup_06(self):
+            """
+            Try to restore an invalid path
+            """
+            self.assertRaises(dbus.DBusException,
+                              self.tracker.restore,
+                              "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
 
-    def test_backup_07(self):
-        """
-        Restore after removing the DBs and journal
+        def test_backup_07(self):
+            """
+            Restore after removing the DBs and journal
 
-        1.Insert a contact.
-        2.Take backup of db.
-        4.Delete the database
-        5.Restore the db.
-        6.Search for the contact inserted.
-        """
-        self.__insert_test_instance()
-        instances_before = self.tracker.count_instances("nco:Contact")
-        self.tracker.backup(self.BACKUP_FILE)
+            1.Insert a contact.
+            2.Take backup of db.
+            4.Delete the database
+            5.Restore the db.
+            6.Search for the contact inserted.
+            """
+            self.__insert_test_instance()
+            instances_before = self.tracker.count_instances("nco:Contact")
+            self.tracker.backup(self.BACKUP_FILE)
 
-        self.system.tracker_store_stop_nicely()
-        self.system.tracker_store_remove_dbs()
-        self.system.tracker_store_remove_journal()
-        self.system.tracker_store_start()
+            self.system.tracker_store_stop_nicely()
+            self.system.tracker_store_remove_dbs()
+            self.system.tracker_store_remove_journal()
+            self.system.tracker_store_start()
 
-        instances_before_restore = self.tracker.count_instances("nco:Contact")
-        self.assertNotEqual(instances_before_restore, instances_before)
+            instances_before_restore = self.tracker.count_instances(
+                "nco:Contact")
+            self.assertNotEqual(instances_before_restore, instances_before)
 
-        self.tracker.restore(self.BACKUP_FILE)
-        self.assertTrue(self.__is_test_instance_there())
+            self.tracker.restore(self.BACKUP_FILE)
+            self.assertTrue(self.__is_test_instance_there())
 
-        self.__delete_test_instance()
+            self.__delete_test_instance()
 
-    def test_backup_08(self):
-        """
-        Restore after corrupting DB
+        def test_backup_08(self):
+            """
+            Restore after corrupting DB
 
-        1.Insert a contact.
-        2.Take backup of db.
-        5.Restore the db.
-        6.Search for the contact inserted.
-        """
-        self.__insert_test_instance()
-        instances_before = self.tracker.count_instances("nco:Contact")
-        self.tracker.backup(self.BACKUP_FILE)
+            1.Insert a contact.
+            2.Take backup of db.
+            5.Restore the db.
+            6.Search for the contact inserted.
+            """
+            self.__insert_test_instance()
+            instances_before = self.tracker.count_instances("nco:Contact")
+            self.tracker.backup(self.BACKUP_FILE)
 
-        self.system.tracker_store_stop_brutally()
-        self.system.tracker_store_corrupt_dbs()
-        self.system.tracker_store_remove_journal()
-        self.system.tracker_store_start()
+            self.system.tracker_store_stop_brutally()
+            self.system.tracker_store_corrupt_dbs()
+            self.system.tracker_store_remove_journal()
+            self.system.tracker_store_start()
 
-        instances_before_restore = self.tracker.count_instances("nco:Contact")
-        self.assertNotEqual(instances_before_restore, instances_before)
+            instances_before_restore = self.tracker.count_instances(
+                "nco:Contact")
+            self.assertNotEqual(instances_before_restore, instances_before)
 
-        self.tracker.restore(self.BACKUP_FILE)
-        self.assertTrue(self.__is_test_instance_there())
+            self.tracker.restore(self.BACKUP_FILE)
+            self.assertTrue(self.__is_test_instance_there())
 
-        # DB to the original state
-        self.__delete_test_instance()
+            # DB to the original state
+            self.__delete_test_instance()
 
-    def test_backup_11(self):
-        """
-        Backup ignores the file extension
+        def test_backup_11(self):
+            """
+            Backup ignores the file extension
 
-        1.Insert a contact.
-        2.Take backup of db in .jpg format.
-        3.Restore the db.
-        4.Search for the contact inserted.
-        """
-        BACKUP_JPG_EXT = "file://%s/tracker-test-backup.jpg" % (
-            cfg.TEST_TMP_DIR)
+            1.Insert a contact.
+            2.Take backup of db in .jpg format.
+            3.Restore the db.
+            4.Search for the contact inserted.
+            """
+            BACKUP_JPG_EXT = "file://%s/tracker-test-backup.jpg" % (
+                cfg.TEST_TMP_DIR)
 
-        self.__insert_test_instance()
+            self.__insert_test_instance()
 
-        instances_before = self.tracker.count_instances("nco:Contact")
+            instances_before = self.tracker.count_instances("nco:Contact")
 
-        self.tracker.backup(BACKUP_JPG_EXT)
+            self.tracker.backup(BACKUP_JPG_EXT)
 
-        self.__delete_test_instance()
-        instances_now = self.tracker.count_instances("nco:Contact")
-        self.assertEquals(instances_before, instances_now + 1)
+            self.__delete_test_instance()
+            instances_now = self.tracker.count_instances("nco:Contact")
+            self.assertEquals(instances_before, instances_now + 1)
 
-        self.tracker.restore(BACKUP_JPG_EXT)
-        instances_after = self.tracker.count_instances("nco:Contact")
-        self.assertEquals(instances_before, instances_after)
+            self.tracker.restore(BACKUP_JPG_EXT)
+            instances_after = self.tracker.count_instances("nco:Contact")
+            self.assertEquals(instances_before, instances_after)
 
-        # Restore the DB to the original state
-        self.__delete_test_instance()
+            # Restore the DB to the original state
+            self.__delete_test_instance()
 
 
 class JournalReplayTest (CommonTrackerStoreTest):
@@ -324,6 +324,3 @@ class JournalReplayTest (CommonTrackerStoreTest):
 
         self.tracker.update(
             "DELETE { <test://journal-replay/02> a rdfs:Resource. }")
-
-if __name__ == "__main__":
-    ut.main()
