@@ -124,8 +124,8 @@ class BackupRestoreTest (testcase.TrackerStoreTest):
         trashfile.close()
 
         self.assertRaises(dbus.DBusException,
-                            self.tracker.restore,
-                            "file://" + TEST_FILE)
+                          self.tracker.restore,
+                          "file://" + TEST_FILE)
         os.unlink(TEST_FILE)
 
     def test_backup_04(self):
@@ -144,8 +144,8 @@ class BackupRestoreTest (testcase.TrackerStoreTest):
         instances_before = self.tracker.count_instances(
             "nie:InformationElement")
         self.assertRaises(dbus.DBusException,
-                            self.tracker.restore,
-                            "file://" + TEST_FILE)
+                          self.tracker.restore,
+                          "file://" + TEST_FILE)
 
         os.unlink(TEST_FILE)
 
@@ -155,16 +155,16 @@ class BackupRestoreTest (testcase.TrackerStoreTest):
         Expected: Backup should not be taken and tracker should behave normally.
         """
         self.assertRaises(dbus.DBusException,
-                            self.tracker.backup,
-                            "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
+                          self.tracker.backup,
+                          "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
 
     def test_backup_06(self):
         """
         Try to restore an invalid path
         """
         self.assertRaises(dbus.DBusException,
-                            self.tracker.restore,
-                            "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
+                          self.tracker.restore,
+                          "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
 
     def test_backup_07(self):
         """

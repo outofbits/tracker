@@ -23,6 +23,7 @@ import common
 
 
 class TrackerStoreTest(unittest.TestCase):
+
     '''Common superclass for tests that just require a fresh store running.
 
     The tracker-store test suites run each test case in one instance of
