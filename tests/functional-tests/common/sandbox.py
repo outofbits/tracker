@@ -23,6 +23,17 @@ import tempfile
 
 from logging import info
 
+import utils.configuration as cfg
+
+from dconf import DConfClient
+
+
+TEST_ENV_VARS = {
+    "DCONF_PROFILE": os.path.join(cfg.DATADIR, "tracker-tests", "trackertest"),
+    "LC_COLLATE": "en_GB.utf8",
+    "TRACKER_DISABLE_MEEGOTOUCH_LOCALE": "",
+}
+
 
 class TrackerSandbox(object):
     '''FIXME: merge with 'tracker-sandbox' tool
@@ -31,17 +42,31 @@ class TrackerSandbox(object):
     from the host system.
 
     '''
-    def __init__(self, user_dirs=True, message_bus=True):
+    def __init__(self, config=None, user_dirs=True, message_bus=True):
         self.tempdir = None
         self.dbus_process = self.dbus_address = None
 
         self._old_environ = os.environ
+
+        for var, value in TEST_ENV_VARS.iteritems():
+            info("%s=%s", var, value)
+            os.environ[var] = value
+
+        if config:
+            self._apply_settings(config)
 
         if user_dirs:
             self.tempdir = self._sandbox_user_dirs()
 
         if message_bus:
             self.dbus_process, self.dbus_address = self._sandbox_message_bus()
+
+    def _apply_settings(self, settings):
+        for schema_name, contents in settings.iteritems():
+            dconf = DConfClient(schema_name)
+            dconf.reset()
+            for key, value in contents.iteritems():
+                dconf.write(key, value)
 
     def _sandbox_user_dirs(self):
         tempdir = tempfile.mkdtemp(prefix='tracker-test')

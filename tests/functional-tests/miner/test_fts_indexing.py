@@ -1,6 +1,5 @@
-#!/usr/bin/python
 #-*- coding: utf-8 -*-
-
+#
 # Copyright (C) 2010, Nokia (ivan.frade@nokia.com)
 #
 # This library is free software; you can redistribute it and/or
@@ -22,22 +21,24 @@
 # TODO:
 #     These tests are for files... we need to write them for folders!
 #
+
 """
 Monitor a directory, copy/move/remove/update text files and check that
 the text contents are updated accordingly in the indexes.
 """
+
+
 import os
 import shutil
 import locale
 import time
 
-import unittest as ut
-from common.utils.helpers import log
-from common.utils.minertest import CommonTrackerMinerTest, MINER_TMP_DIR, uri, path, DEFAULT_TEXT
+
+from miner_testcase import MinerTestCase, MINER_TMP_DIR, uri, path, DEFAULT_TEXT
 from common.utils import configuration as cfg
 
 
-class CommonMinerFTS (CommonTrackerMinerTest):
+class CommonMinerFTS (MinerTestCase):
 
     """
     Superclass to share methods. Shouldn't be run by itself.
@@ -338,7 +339,3 @@ class MinerFTSStopwordsTest (CommonMinerFTS):
 
     # FIXME add all the special character tests!
     # http://git.gnome.org/browse/tracker/commit/?id=81c0d3bd754a6b20ac72323481767dc5b4a6217b
-
-
-if __name__ == "__main__":
-    ut.main()

@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import os
 import shutil
-import configuration as cfg
 
 from dconf import DConfClient
 
@@ -59,40 +58,6 @@ class TrackerSystemAbstraction:
             self._apply_settings(settings)
 
         helpers.log("[Conf] environment ready")
-
-    def _apply_settings(self, settings):
-        for schema_name, contents in settings.iteritems():
-            dconf = DConfClient(schema_name)
-            dconf.reset()
-            for key, value in contents.iteritems():
-                dconf.write(key, value)
-
-    def tracker_store_stop_brutally(self):
-        self.store.kill()
-
-    def tracker_miner_fs_testing_start(self, config, dbus_address):
-        """
-        Stops any previous instance of the store and miner, calls set_up_environment,
-        and starts a new instance of the store and miner-fs
-        """
-        self.set_up_environment(config, None)
-
-        self.store = helpers.StoreHelper()
-        self.store.start(dbus_address)
-
-        self.extractor = helpers.ExtractorHelper()
-        self.extractor.start(dbus_address)
-
-        self.miner_fs = helpers.MinerFsHelper()
-        self.miner_fs.start(dbus_address)
-
-    def tracker_miner_fs_testing_stop(self):
-        """
-        Stops the extractor, miner-fs and store running
-        """
-        self.extractor.stop()
-        self.miner_fs.stop()
-        self.store.stop()
 
     def tracker_writeback_testing_start(self, config, dbus_address):
         # Start the miner-fs (and store) and then the writeback process

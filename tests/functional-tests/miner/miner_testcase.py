@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
 # This program is free software; you can redistribute it and/or
@@ -16,17 +14,20 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
-#
-from common.utils import configuration as cfg
-from common.utils.system import TrackerSystemAbstraction
-import unittest as ut
+
 
 from gi.repository import GLib
 
 import shutil
 import os
-import warnings
+import unittest
+
 from itertools import chain
+
+import common.helpers
+
+from common.utils import configuration as cfg
+
 
 MINER_TMP_DIR = cfg.TEST_MONITORED_TMP_DIR
 
@@ -53,8 +54,7 @@ CONF_OPTIONS = {
 }
 
 
-class CommonTrackerMinerTest (ut.TestCase):
-
+class MinerTestCase (unittest.TestCase):
     def prepare_directories(self):
         #
         #     ~/test-monitored/
@@ -100,17 +100,26 @@ class CommonTrackerMinerTest (ut.TestCase):
                 shutil.rmtree(dirname)
             os.makedirs(dirname)
 
-        self.system = TrackerSystemAbstraction()
+        self.sandbox = common.sandbox.TrackerSandbox(CONF_OPTIONS)
+        self.store = common.helpers.StoreHelper()
+        self.store.start(self.sandbox)
 
-        self.system.tracker_miner_fs_testing_start(CONF_OPTIONS)
-        self.tracker = self.system.store
+        self.extractor = common.helpers.ExtractorHelper()
+        self.extractor.start(self.sandbox)
+
+        self.miner_fs = common.helpers.MinerFsHelper()
+        self.miner_fs.start(self.sandbox)
+
+        self.tracker = self.store
 
         try:
             self.prepare_directories()
             self.tracker.reset_graph_updates_tracking()
-        except Exception as e:
+        except Exception:
             self.tearDown()
             raise
 
     def tearDown(self):
-        self.system.tracker_miner_fs_testing_stop()
+        self.extractor.stop()
+        self.miner_fs.stop()
+        self.store.stop()

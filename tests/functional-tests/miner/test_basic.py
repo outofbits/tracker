@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 # Copyright (C) 2010, Nokia (ivan.frade@nokia.com)
 #
 # This library is free software; you can redistribute it and/or
@@ -21,20 +19,20 @@
 # TODO:
 #     These tests are for files... we need to write them for folders!
 #
+
 """
 Monitor a test directory and copy/move/remove/update files and folders there.
 Check the basic data of the files is updated accordingly in tracker.
 """
+
 import os
 import shutil
 import time
 
-import unittest as ut
-from common.utils.helpers import log
-from common.utils.minertest import CommonTrackerMinerTest, MINER_TMP_DIR, uri, path
+from miner_testcase import MinerTestCase, MINER_TMP_DIR, uri, path
 
 
-class MinerCrawlTest (CommonTrackerMinerTest):
+class MinerCrawlTest (MinerTestCase):
 
     """
     Test cases to check if miner is able to monitor files that are created, deleted or moved
@@ -325,11 +323,3 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         # Check everything is fine
         result = self.__get_text_documents()
         self.assertEquals(len(result), 3)
-
-if __name__ == "__main__":
-    print """
-     Tests for Copy/move/delete operations of FILES between monitored/unmonitored locations.
-
-     We need to do the same for DIRECTORIES!
-    """
-    ut.main()

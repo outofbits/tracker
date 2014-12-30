@@ -30,22 +30,15 @@ import sys
 import subprocess
 import time
 
-from logging import info
+from logging import debug, info, warn
 
 import utils.configuration as cfg
-
-from utils import options
 
 
 class NoMetadataException (Exception):
     pass
 
 REASONABLE_TIMEOUT = 30
-
-
-def log(message):
-    if options.is_verbose():
-        print (message)
 
 
 class Helper:
@@ -108,17 +101,18 @@ class Helper:
                         "FLAGS",
                         [])
 
-        if options.is_manual_start():
-            print ("Start %s manually" % self.PROCESS_NAME)
-        else:
+        #if options.is_manual_start():
+        #    print ("Start %s manually" % self.PROCESS_NAME)
+        #else:
+        if True:
             kws = {}
 
-            if not options.is_verbose():
-                FNULL = open('/dev/null', 'w')
-                kws = {'stdout': FNULL, 'stderr': FNULL}
+            #if not options.is_verbose():
+            #    FNULL = open('/dev/null', 'w')
+            #    kws = {'stdout': FNULL, 'stderr': FNULL}
 
             command = [path] + flags
-            log("Starting %s" % ' '.join(command))
+            info("Starting %s" % ' '.join(command))
 
             if extra_env:
                 kws['env'] = os.environ.copy()
@@ -129,13 +123,13 @@ class Helper:
     def _name_owner_changed_cb(self, name, old_owner, new_owner):
         if name == self.BUS_NAME:
             if old_owner == '' and new_owner != '':
-                log("[%s] appeared in the bus" % self.PROCESS_NAME)
+                info("[%s] appeared in the bus" % self.PROCESS_NAME)
                 self.available = True
             elif old_owner != '' and new_owner == '':
-                log("[%s] disappeared from the bus" % self.PROCESS_NAME)
+                info("[%s] disappeared from the bus" % self.PROCESS_NAME)
                 self.available = False
             else:
-                log("[%s] name change %s -> %s" %
+                info("[%s] name change %s -> %s" %
                     (self.PROCESS_NAME, old_owner, new_owner))
 
             self.loop.quit()
@@ -153,7 +147,7 @@ class Helper:
                         (self.PROCESS_NAME, status))
 
     def _timeout_on_idle_cb(self):
-        log("[%s] Timeout waiting... asumming idle." % self.PROCESS_NAME)
+        info("[%s] Timeout waiting... asumming idle." % self.PROCESS_NAME)
         self.loop.quit()
         self.timeout_id = None
         return False
@@ -176,7 +170,7 @@ class Helper:
                                          dbus_interface="org.freedesktop.DBus")
 
         self.process = self._start_process(extra_env)
-        log('[%s] Started process %i' % (self.PROCESS_NAME, self.process.pid))
+        info('[%s] Started process %i' % (self.PROCESS_NAME, self.process.pid))
 
         self.process_watch_timeout = GLib.timeout_add(
             200, self._process_watch_cb)
@@ -208,12 +202,12 @@ class Helper:
                 time.sleep(0.1)
 
                 if time.time() > (start + REASONABLE_TIMEOUT):
-                    log("[%s] Failed to terminate, sending kill!" %
-                        self.PROCESS_NAME)
+                    warn("[%s] Failed to terminate, sending kill!",
+                         self.PROCESS_NAME)
                     self.process.kill()
                     self.process.wait()
 
-        log("[%s] stopped." % self.PROCESS_NAME)
+        info("[%s] stopped." % self.PROCESS_NAME)
         self.loop.run()
 
         # Disconnect the signals of the next start we get duplicated messages
@@ -225,7 +219,7 @@ class Helper:
         # Name owner changed callback should take us out from this loop
         self.loop.run()
 
-        log("[%s] killed." % self.PROCESS_NAME)
+        info("[%s] killed." % self.PROCESS_NAME)
         self.bus._clean_up_signal_match(self.name_owner_match)
 
 
@@ -274,9 +268,9 @@ class StoreHelper (Helper):
         self.status_iface = dbus.Interface(
             tracker_status, dbus_interface=cfg.STATUS_IFACE)
 
-        log("[%s] booting..." % self.PROCESS_NAME)
+        info("[%s] booting..." % self.PROCESS_NAME)
         self.status_iface.Wait()
-        log("[%s] ready." % self.PROCESS_NAME)
+        info("[%s] ready." % self.PROCESS_NAME)
 
         self.reset_graph_updates_tracking()
         self.graph_updated_handler_id = self.bus.add_signal_receiver(
@@ -347,14 +341,14 @@ class StoreHelper (Helper):
         self.matched_resource_urn = None
         self.matched_resource_id = None
 
-        log("Await new %s (%i existing inserts)" %
-            (rdf_class, len(self.inserts_list)))
+        debug("Await new %s (%i existing inserts)", rdf_class,
+              len(self.inserts_list))
 
         if required_property is not None:
             required_property_id = self.get_resource_id_by_uri(
                 required_property)
-            log("Required property %s id %i" %
-                (required_property, required_property_id))
+            debug("Required property %s id %i", required_property,
+                  required_property_id)
 
         known_subjects = set()
 
@@ -388,18 +382,18 @@ class StoreHelper (Helper):
                         matched_creation = True
                         self.matched_resource_urn = result_set[0][0]
                         self.matched_resource_id = insert[1]
-                        log("Matched creation of resource %s (%i)" %
-                            (self.matched_resource_urn,
-                             self.matched_resource_id))
+                        debug("Matched creation of resource %s (%i)",
+                              self.matched_resource_urn,
+                              self.matched_resource_id)
                         if required_property is not None:
-                            log("Waiting for property %s (%i) to be set" %
-                                (required_property, required_property_id))
+                            debug("Waiting for property %s (%i) to be set",
+                                  required_property, required_property_id)
 
                 if required_property is not None and matched_creation and not matched_required_property:
                     if id == self.matched_resource_id and insert[2] == required_property_id:
                         matched_required_property = True
-                        log("Matched %s %s" %
-                            (self.matched_resource_urn, required_property))
+                        debug("Matched %s %s", self.matched_resource_urn,
+                              required_property)
 
                 if not matched_creation or id != self.matched_resource_id:
                     remaining_events += [insert]
@@ -436,8 +430,8 @@ class StoreHelper (Helper):
         assert (self.deletes_match_function == None)
 
         def find_resource_deletion(deletes_list):
-            log("find_resource_deletion: looking for %i in %s" %
-                (id, deletes_list))
+            debug("find_resource_deletion: looking for %i in %s", id,
+                  deletes_list)
 
             matched = False
             remaining_events = []
@@ -455,8 +449,7 @@ class StoreHelper (Helper):
             exit_loop = matched
             return exit_loop, remaining_events
 
-        log("Await deletion of %i (%i existing)" %
-            (id, len(self.deletes_list)))
+        debug("Await deletion of %i (%i existing)", id, len(self.deletes_list))
 
         (existing_match, self.deletes_list) = find_resource_deletion(
             self.deletes_list)
@@ -490,7 +483,7 @@ class StoreHelper (Helper):
 
             for insert in inserts_list:
                 if insert[1] == subject_id and insert[2] == property_id:
-                    log("Matched property change: %s" % str(insert))
+                    debug("Matched property change: %s", str(insert))
                     matched = True
                 else:
                     remaining_events += [insert]

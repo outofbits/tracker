@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 # Copyright (C) 2010, Nokia (ivan.frade@nokia.com)
 #
 # This library is free software; you can redistribute it and/or
@@ -22,38 +20,18 @@ Test that resource removal does not leave debris or clobber too much,
 especially in the case where nie:InformationElement != nie:DataObject
 """
 
-from common.utils import configuration as cfg
-from common.utils.dconf import DConfClient
-from common.utils.helpers import MinerFsHelper, StoreHelper, ExtractorHelper, log
-from common.utils.minertest import CommonTrackerMinerTest, path, uri
-from common.utils.system import TrackerSystemAbstraction
-
 from gi.repository import GLib
 
-import dbus
-from gi.repository import GLib
 import os
-import shutil
-import unittest as ut
+
+from common.utils import configuration as cfg
+from miner_testcase import MinerTestCase, path, uri
+
 
 MINER_TMP_DIR = cfg.TEST_MONITORED_TMP_DIR
 
 
-CONF_OPTIONS = {
-    cfg.DCONF_MINER_SCHEMA: {
-        'enable-writeback': GLib.Variant.new_boolean(False),
-        'index-recursive-directories': GLib.Variant.new_strv([MINER_TMP_DIR]),
-        'index-single-directories': GLib.Variant.new_strv([]),
-        'index-optical-discs': GLib.Variant.new_boolean(False),
-        'index-removable-devices': GLib.Variant.new_boolean(False),
-        'throttle': GLib.Variant.new_int32(5),
-    }
-}
-
-REASONABLE_TIMEOUT = 30
-
-
-class MinerResourceRemovalTest (CommonTrackerMinerTest):
+class MinerResourceRemovalTest (MinerTestCase):
 
     def prepare_directories(self):
         # Override content from the base class
@@ -141,7 +119,3 @@ class MinerResourceRemovalTest (CommonTrackerMinerTest):
 
         # Check that only the data on the removable volume was deleted
         #self.await_updates (2)
-
-
-if __name__ == "__main__":
-    ut.main()
