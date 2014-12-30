@@ -26,10 +26,10 @@ import random
 
 from common.utils import configuration as cfg
 import unittest as ut
-import testcase
+import store_testcase
 
 
-class TestGraphs (testcase.TrackerStoreTest):
+class TestGraphs (store_testcase.TrackerStoreTest):
 
     """
     Insert triplets in different graphs and check the query results asking in

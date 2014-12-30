@@ -26,10 +26,10 @@ import random
 
 from common.utils import configuration as cfg
 import unittest as ut
-import testcase
+import store_testcase
 
 
-class TestMinerInsertBehaviour (testcase.TrackerStoreTest):
+class TestMinerInsertBehaviour (store_testcase.TrackerStoreTest):
 
     """
     Mimic the behaviour of the miner, removing the previous information of the resource

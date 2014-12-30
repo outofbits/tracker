@@ -16,6 +16,10 @@
 # 02110-1301, USA.
 
 
+# Including all tests in this file ensures that they can be run with
+# `python -m unittest module` as well as `python -m unittest discover module`.
+
+
 import test_backup_restore
 import test_coalesce
 import test_collation

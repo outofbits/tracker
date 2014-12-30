@@ -26,14 +26,14 @@ import time
 
 from common.utils import configuration as cfg
 import unittest as ut
-import testcase
+import store_testcase
 
 RDFS_RESOURCE = "rdfs:Resource"
 NIE_IE = "nie:InformationElement"
 RDFS_CLASS = "rdfs:Class"
 
 
-class TrackerStoreStatisticsTests (testcase.TrackerStoreTest):
+class TrackerStoreStatisticsTests (store_testcase.TrackerStoreTest):
 
     """
     Check initial statistics, add, remove, update content and check results stats

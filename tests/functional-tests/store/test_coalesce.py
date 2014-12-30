@@ -27,10 +27,10 @@ import random
 
 from common.utils import configuration as cfg
 import unittest as ut
-import testcase
+import store_testcase
 
 
-class TestCoalesce (testcase.TrackerStoreTest):
+class TestCoalesce (store_testcase.TrackerStoreTest):
 
     """
     Insert and instance with some values, and tracker coalesce of some of them

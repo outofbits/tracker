@@ -32,11 +32,11 @@ import datetime
 
 from common.utils import configuration as cfg
 import unittest as ut
-import testcase
+import store_testcase
 from common.utils.expectedFailure import expectedFailureBug
 
 
-class TrackerStoreSparqlBugsTests (testcase.TrackerStoreTest):
+class TrackerStoreSparqlBugsTests (store_testcase.TrackerStoreTest):
 
     def test_01_NB217566_union_exists_filter(self):
         """

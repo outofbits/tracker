@@ -33,13 +33,13 @@ from dbus.mainloop.glib import DBusGMainLoop
 
 from common.utils import configuration as cfg
 import unittest as ut
-import testcase
+import store_testcase
 
 AMOUNT_OF_TEST_INSTANCES = 100
 AMOUNT_OF_QUERIES = 10
 
 
-class TestConcurrentQuery (testcase.TrackerStoreTest):
+class TestConcurrentQuery (store_testcase.TrackerStoreTest):
 
     """
     Send a bunch of queries to the daemon asynchronously, to test the queue

@@ -25,7 +25,7 @@ import dbus  # For the exception handling
 from common.utils import configuration as cfg
 from common.utils.expectedFailure import expectedFailureBug, expectedFailureJournal
 
-import testcase
+import store_testcase
 
 
 """
@@ -33,7 +33,7 @@ Call backup, restore, force the journal replay and check the data is correct aft
 """
 
 
-class BackupRestoreTest (testcase.TrackerStoreTest):
+class BackupRestoreTest (store_testcase.TrackerStoreTest):
 
     '''Backup and restore to/from valid/invalid files'''
 
@@ -252,7 +252,7 @@ class BackupRestoreTest (testcase.TrackerStoreTest):
         self.__delete_test_instance()
 
 
-class JournalReplayTest (testcase.TrackerStoreTest):
+class JournalReplayTest (store_testcase.TrackerStoreTest):
 
     """
     Force journal replaying and check that the DB is correct aftewards

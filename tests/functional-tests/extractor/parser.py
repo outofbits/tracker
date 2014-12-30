@@ -1,5 +1,3 @@
-#!/usr/bin/python
-#
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
 # This program is free software; you can redistribute it and/or
@@ -16,17 +14,18 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
-#
 
-from common.utils import configuration as cfg
-from common.utils.helpers import log
+
 import os
 import re
 import subprocess
 
+from logging import info
+
+from common.utils import configuration as cfg
+
 
 class ExtractorParser(object):
-
     def parse_tracker_extract_output(self, text):
         """
         Parse stdout of `tracker-extract --file` to get SPARQL statements.
@@ -269,7 +268,7 @@ def get_tracker_extract_output(filename, mime_type=None):
         command.extend(['--mime', mime_type])
 
     try:
-        log('Running: %s' % ' '.join(command))
+        info('Running: %s' % ' '.join(command))
         output = subprocess.check_output(command)
     except subprocess.CalledProcessError as e:
         raise Exception("Error %i from tracker-extract, output: %s" %

@@ -30,7 +30,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 
 from common.utils import configuration as cfg
 import unittest as ut
-import testcase
+import store_testcase
 
 MAX_TEST_TIME = 60  # seconds to finish the tests (to avoid infinite waitings)
 
@@ -41,7 +41,7 @@ COMPLEX_QUERY_TIMEOUT = 15000
 SIMPLE_QUERY_FREQ = 2
 
 
-class TestThreadedStore (testcase.TrackerStoreTest):
+class TestThreadedStore (store_testcase.TrackerStoreTest):
 
     """
     When the database is big, running a complex query takes ages.

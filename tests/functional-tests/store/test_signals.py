@@ -24,7 +24,7 @@ are tested)
 """
 
 import unittest as ut
-import testcase
+import store_testcase
 from common.utils import configuration as cfg
 
 from gi.repository import GObject
@@ -43,7 +43,7 @@ CONTACT_CLASS_URI = "http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Pe
 REASONABLE_TIMEOUT = 10  # Time waiting for the signal to be emitted
 
 
-class TrackerStoreSignalsTests (testcase.TrackerStoreTest):
+class TrackerStoreSignalsTests (store_testcase.TrackerStoreTest):
 
     """
     Insert/update/remove instances from nco:PersonContact

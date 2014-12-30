@@ -28,17 +28,17 @@ from dbus.mainloop.glib import DBusGMainLoop
 
 from common.utils import configuration as cfg
 import unittest as ut
-import testcase
+import store_testcase
 
 
-class TestSqliteMisused (testcase.TrackerStoreTest):
+class TestSqliteMisused (store_testcase.TrackerStoreTest):
 
     """
     Send queries while importing files (in .ttl directory)
     """
 
     def setUp(self):
-        super(testcase.TrackerStoreTest, self).setUp()
+        super(store_testcase.TrackerStoreTest, self).setUp()
 
         self.main_loop = GObject.MainLoop()
         self.files_counter = 0

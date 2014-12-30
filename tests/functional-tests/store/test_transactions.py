@@ -26,13 +26,13 @@ import time
 from common.utils import configuration as cfg
 from common.utils.helpers import StoreHelper as StoreHelper
 
-import testcase
+import store_testcase
 
 
 TEST_INSTANCE_PATTERN = "test://12-transactions-%d"
 
 
-class TrackerTransactionsTest(testcase.TrackerStoreTest):
+class TrackerTransactionsTest(store_testcase.TrackerStoreTest):
 
     """
     In a loop:

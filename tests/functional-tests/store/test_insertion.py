@@ -33,10 +33,10 @@ import datetime
 
 from common.utils import configuration as cfg
 import unittest as ut
-import testcase
+import store_testcase
 
 
-class TrackerStoreInsertionTests (testcase.TrackerStoreTest):
+class TrackerStoreInsertionTests (store_testcase.TrackerStoreTest):
 
     """
     Insert single and multiple-valued properties, dates (ok and broken)
@@ -633,7 +633,7 @@ class TrackerStoreInsertionTests (testcase.TrackerStoreTest):
             """DELETE { <test://instance-ds3> a rdfs:Resource. }""")
 
 
-class TrackerStoreDeleteTests (testcase.TrackerStoreTest):
+class TrackerStoreDeleteTests (store_testcase.TrackerStoreTest):
 
     """
     Use DELETE in Sparql and check the information is actually removed
@@ -720,7 +720,7 @@ class TrackerStoreDeleteTests (testcase.TrackerStoreTest):
         self.assertEquals(after_removal, initial)
 
 
-class TrackerStoreBatchUpdateTest (testcase.TrackerStoreTest):
+class TrackerStoreBatchUpdateTest (store_testcase.TrackerStoreTest):
 
     """
     Insert data using the BatchSparqlUpdate method in the store
@@ -791,7 +791,7 @@ class TrackerStoreBatchUpdateTest (testcase.TrackerStoreTest):
         self.assertEquals(count_before_insert, count_final)
 
 
-class TrackerStorePhoneNumberTest (testcase.TrackerStoreTest):
+class TrackerStorePhoneNumberTest (store_testcase.TrackerStoreTest):
 
     """
     Tests around phone numbers (maemo specific). Inserting correct/incorrect ones
