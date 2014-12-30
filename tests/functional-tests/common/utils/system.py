@@ -1,16 +1,8 @@
 #!/usr/bin/python
 import os
-import subprocess
 import shutil
 import configuration as cfg
 
-from gi.repository import GObject
-from gi.repository import GLib
-import dbus
-from dbus.mainloop.glib import DBusGMainLoop
-import time
-
-import options
 from dconf import DConfClient
 
 import helpers
@@ -77,39 +69,6 @@ class TrackerSystemAbstraction:
 
     def tracker_store_stop_brutally(self):
         self.store.kill()
-
-    def tracker_store_prepare_journal_replay(self):
-        db_location = os.path.join(
-            TEST_ENV_DIRS['XDG_CACHE_HOME'], "tracker", "meta.db")
-        os.unlink(db_location)
-
-        lockfile = os.path.join(
-            TEST_ENV_DIRS['XDG_DATA_HOME'], "tracker", "data", ".ismeta.running")
-        f = open(lockfile, 'w')
-        f.write(" ")
-        f.close()
-
-    def tracker_store_corrupt_dbs(self):
-        for filename in ["meta.db", "meta.db-wal"]:
-            db_path = os.path.join(
-                TEST_ENV_DIRS['XDG_CACHE_HOME'], "tracker", filename)
-            f = open(db_path, "w")
-            for i in range(0, 100):
-                f.write(
-                    "Some stupid content... hohohoho, not a sqlite file anymore!\n")
-            f.close()
-
-    def tracker_store_remove_journal(self):
-        db_location = os.path.join(
-            TEST_ENV_DIRS['XDG_DATA_HOME'], "tracker", "data")
-        shutil.rmtree(db_location)
-        os.mkdir(db_location)
-
-    def tracker_store_remove_dbs(self):
-        db_location = os.path.join(
-            TEST_ENV_DIRS['XDG_CACHE_HOME'], "tracker")
-        shutil.rmtree(db_location)
-        os.mkdir(db_location)
 
     def tracker_miner_fs_testing_start(self, config, dbus_address):
         """

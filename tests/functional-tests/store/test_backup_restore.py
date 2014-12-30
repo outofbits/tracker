@@ -17,11 +17,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
+
+
 import os
 import dbus  # For the exception handling
 
-from common.utils.system import TrackerSystemAbstraction
-from common.utils.helpers import StoreHelper
 from common.utils import configuration as cfg
 from common.utils.expectedFailure import expectedFailureBug, expectedFailureJournal
 
@@ -180,10 +180,10 @@ class BackupRestoreTest (testcase.TrackerStoreTest):
         instances_before = self.tracker.count_instances("nco:Contact")
         self.tracker.backup(self.BACKUP_FILE)
 
-        self.system.tracker_store_stop_nicely()
-        self.system.tracker_store_remove_dbs()
-        self.system.tracker_store_remove_journal()
-        self.system.tracker_store_start()
+        self.store.stop()
+        self.store.remove_dbs()
+        self.store.remove_journal()
+        self.store.start(self.sandbox)
 
         instances_before_restore = self.tracker.count_instances(
             "nco:Contact")
@@ -207,10 +207,10 @@ class BackupRestoreTest (testcase.TrackerStoreTest):
         instances_before = self.tracker.count_instances("nco:Contact")
         self.tracker.backup(self.BACKUP_FILE)
 
-        self.system.tracker_store_stop_brutally()
-        self.system.tracker_store_corrupt_dbs()
-        self.system.tracker_store_remove_journal()
-        self.system.tracker_store_start()
+        self.store.kill()
+        self.store.corrupt_dbs()
+        self.store.remove_journal()
+        self.store.start(self.sandbox)
 
         instances_before_restore = self.tracker.count_instances(
             "nco:Contact")
@@ -276,9 +276,9 @@ class JournalReplayTest (testcase.TrackerStoreTest):
         ie = self.tracker.count_instances("nie:InformationElement")
         contacts = self.tracker.count_instances("nco:Contact")
 
-        self.system.tracker_store_stop_brutally()
-        self.system.tracker_store_corrupt_dbs()
-        self.system.tracker_store_start()
+        self.store.kill()
+        self.store.corrupt_dbs()
+        self.store.start(self.sandbox)
 
         emails_now = self.tracker.count_instances("nmo:Email")
         ie_now = self.tracker.count_instances("nie:InformationElement")
@@ -310,9 +310,9 @@ class JournalReplayTest (testcase.TrackerStoreTest):
         ie = self.tracker.count_instances("nie:InformationElement")
         contacts = self.tracker.count_instances("nco:Contact")
 
-        self.system.tracker_store_stop_brutally()
-        self.system.tracker_store_prepare_journal_replay()
-        self.system.tracker_store_start()
+        self.store.kill()
+        self.store.prepare_journal_replay()
+        self.store.start(self.sandbox)
 
         emails_now = self.tracker.count_instances("nmo:Email")
         ie_now = self.tracker.count_instances("nie:InformationElement")

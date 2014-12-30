@@ -32,7 +32,7 @@ import testcase
 TEST_INSTANCE_PATTERN = "test://12-transactions-%d"
 
 
-class TrackerTransactionsTest(testcase.TrackerSToreTest):
+class TrackerTransactionsTest(testcase.TrackerStoreTest):
 
     """
     In a loop:
@@ -50,7 +50,6 @@ class TrackerTransactionsTest(testcase.TrackerSToreTest):
         self.instance_counter = 0
 
     def tearDown(self):
-        print "Tear down (will take some time to remove all resources)"
         delete_sparql = "DELETE { ?u a rdfs:Resource } WHERE { ?u a nmo:Email} \n"
         self.tracker.update(delete_sparql,
                             timeout=60000)
@@ -80,8 +79,9 @@ class TrackerTransactionsTest(testcase.TrackerSToreTest):
             NUMBER_OF_INSTANCES = 1000
             self.insert_and_commit(NUMBER_OF_INSTANCES)
 
-            self.system.tracker_store_stop_brutally()
-            self.system.tracker_store_start()
+            self.store.kill()
+            self.store.start(self.sandbox)
+
             try:
                 results = self.tracker.count_instances("nmo:Email")
             except:

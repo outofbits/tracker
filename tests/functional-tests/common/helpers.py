@@ -17,17 +17,23 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
+
 import dbus
+
+from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 from gi.repository import GObject
+
 import os
+import shutil
 import sys
 import subprocess
 import time
-from dbus.mainloop.glib import DBusGMainLoop
-import re
+
+from logging import info
 
 import utils.configuration as cfg
+
 from utils import options
 
 
@@ -628,6 +634,38 @@ class StoreHelper (Helper):
             return False
         else:
             raise Exception("Something fishy is going on")
+
+    def remove_journal(self):
+        db_location = os.path.join(
+            os.environ['XDG_DATA_HOME'], 'tracker', 'data')
+        shutil.rmtree(db_location)
+        os.mkdir(db_location)
+
+    def remove_dbs(self):
+        db_location = os.path.join(
+            os.environ['XDG_CACHE_HOME'], 'tracker')
+        shutil.rmtree(db_location)
+        os.mkdir(db_location)
+
+    def corrupt_dbs(self):
+        for filename in ["meta.db", "meta.db-wal"]:
+            db_path = os.path.join(
+                os.environ['XDG_CACHE_HOME'], 'tracker', filename)
+            with open(db_path, "w") as f:
+                for i in range(0, 100):
+                    f.write(
+                        "Some stupid content... hohohoho, not a sqlite file "
+                        "anymore!\n")
+
+    def prepare_journal_replay(self):
+        db_location = os.path.join(
+            os.environ['XDG_CACHE_HOME'], 'tracker', 'meta.db')
+        os.unlink(db_location)
+
+        lockfile = os.path.join(
+            os.environ['XDG_DATA_HOME'], 'tracker', 'data', '.ismeta.running')
+        with open(lockfile, 'w') as f:
+            f.write(' ')
 
 
 class MinerFsHelper (Helper):

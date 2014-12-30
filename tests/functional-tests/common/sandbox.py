@@ -55,6 +55,9 @@ class TrackerSandbox(object):
         os.environ['HOME'] = tempdir
         info("HOME=%s" % tempdir)
 
+        os.environ['XDG_DATA_HOME'] = os.path.join(tempdir, 'data')
+        os.environ['XDG_CACHE_HOME'] = os.path.join(tempdir, 'cache')
+
         return tempdir
 
     def _sandbox_message_bus(self):
@@ -71,7 +74,7 @@ class TrackerSandbox(object):
     def _stop_message_bus(self, dbus_process):
         info('Stopping D-Bus daemon (PID %i) ...' % (dbus_process.pid))
         dbus_process.terminate()
-        dbus_process.stop()
+        dbus_process.wait()
 
     def _remove_tempdir(self, tempdir):
         shutil.rmtree(tempdir)
