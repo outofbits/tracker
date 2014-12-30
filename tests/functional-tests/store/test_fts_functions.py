@@ -28,10 +28,10 @@ import random
 
 from common.utils import configuration as cfg
 import unittest as ut
-from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
+import testcase
 
 
-class TestFTSFunctions (CommonTrackerStoreTest):
+class TestFTSFunctions (testcase.TrackerStoreTest):
 
     """
     Insert data with text and check the fts:xxxx functions are returning the expected results

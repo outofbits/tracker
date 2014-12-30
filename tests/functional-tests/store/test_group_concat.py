@@ -26,10 +26,10 @@ import random
 
 from common.utils import configuration as cfg
 import unittest as ut
-from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
+import testcase
 
 
-class TestGroupConcat (CommonTrackerStoreTest):
+class TestGroupConcat (testcase.TrackerStoreTest):
 
     """
     Insert a multivalued property and request the results in GROUP_CONCAT

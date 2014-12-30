@@ -35,13 +35,15 @@ class TrackerStoreTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        sandbox = common.sandbox.TrackerSandbox()
+        self.sandbox = common.sandbox.TrackerSandbox()
 
         self.store = common.helpers.StoreHelper()
-        self.store.start(sandbox.dbus_address)
+        self.store.start(self.sandbox)
 
-        self.tracker = self.system.store
+        self.tracker = self.store
 
     @classmethod
     def tearDownClass(self):
         self.store.stop()
+
+        self.sandbox.close()

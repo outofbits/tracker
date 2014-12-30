@@ -28,10 +28,10 @@ import locale
 
 from common.utils import configuration as cfg
 import unittest as ut
-from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
+import testcase
 
 
-class TrackerStoreCollationTests (CommonTrackerStoreTest):
+class TrackerStoreCollationTests (testcase.TrackerStoreTest):
 
     """
     Insert few instances with a text field containing collation-problematic words.

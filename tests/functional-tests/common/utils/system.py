@@ -58,11 +58,6 @@ class TrackerSystemAbstraction:
         for directory in EXTRA_DIRS:
             self.__recreate_directory(directory)
 
-        if ontodir:
-            helpers.log("export %s=%s" %
-                        ("TRACKER_DB_ONTOLOGIES_DIR", ontodir))
-            os.environ["TRACKER_DB_ONTOLOGIES_DIR"] = ontodir
-
         for var, value in TEST_ENV_VARS.iteritems():
             helpers.log("export %s=%s" % (var, value))
             os.environ[var] = value
@@ -80,36 +75,8 @@ class TrackerSystemAbstraction:
             for key, value in contents.iteritems():
                 dconf.write(key, value)
 
-    def tracker_store_testing_start(self, config=None, ontodir=None, dbus_address=None):
-        """
-        Stops any previous instance of the store, calls set_up_environment,
-        and starts a new instances of the store
-        """
-        self.set_up_environment(config, ontodir)
-
-        self.store = helpers.StoreHelper()
-        self.store.start(dbus_address)
-
-    def tracker_store_start(self):
-        self.store.start()
-
-    def tracker_store_stop_nicely(self):
-        self.store.stop()
-
     def tracker_store_stop_brutally(self):
         self.store.kill()
-
-    def tracker_store_restart_with_new_ontologies(self, ontodir):
-        self.store.stop()
-        if ontodir:
-            helpers.log("[Conf] Setting %s - %s" %
-                        ("TRACKER_DB_ONTOLOGIES_DIR", ontodir))
-            os.environ["TRACKER_DB_ONTOLOGIES_DIR"] = ontodir
-        try:
-            self.store.start()
-        except dbus.DBusException, e:
-            raise UnableToBootException(
-                "Unable to boot the store \n(" + str(e) + ")")
 
     def tracker_store_prepare_journal_replay(self):
         db_location = os.path.join(
@@ -143,13 +110,6 @@ class TrackerSystemAbstraction:
             TEST_ENV_DIRS['XDG_CACHE_HOME'], "tracker")
         shutil.rmtree(db_location)
         os.mkdir(db_location)
-
-    def tracker_store_testing_stop(self):
-        """
-        Stops a running tracker-store
-        """
-        assert self.store
-        self.store.stop()
 
     def tracker_miner_fs_testing_start(self, config, dbus_address):
         """
@@ -199,29 +159,3 @@ class TrackerSystemAbstraction:
         if (os.path.exists(directory)):
             shutil.rmtree(directory)
         os.makedirs(directory)
-
-
-if __name__ == "__main__":
-    import gtk
-    import glib
-    import time
-
-    def destroy_the_world(a):
-        a.tracker_store_testing_stop()
-        print "   stopped"
-        Gtk.main_quit()
-
-    print "-- Starting store --"
-    a = TrackerSystemAbstraction()
-    a.tracker_store_testing_start()
-    print "   started, waiting 5 sec. to stop it"
-    GLib.timeout_add_seconds(5, destroy_the_world, a)
-    Gtk.main()
-
-    print "-- Starting miner-fs --"
-    b = TrackerMinerFsLifeCycle()
-    b.start()
-    print "  started, waiting 3 secs. to stop it"
-    time.sleep(3)
-    b.stop()
-    print "  stopped"

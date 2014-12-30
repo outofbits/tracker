@@ -1,5 +1,3 @@
-#!/usr/bin/python
-#
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
 # This program is free software; you can redistribute it and/or
@@ -22,18 +20,18 @@
 Stand-alone tests cases for the store, booting it with different ontology
 changes and checking if the data is still there.
 """
-import time
+
+import dbus  # Just for the Exception
 
 import os
-import dbus  # Just for the Exception
-from common.utils import configuration as cfg
-import unittest as ut
-from common.utils.system import TrackerSystemAbstraction as TrackerSystemAbstraction
-from common.utils.system import UnableToBootException as UnableToBootException
-from common.utils.helpers import StoreHelper as StoreHelper
-from common.utils.expectedFailure import expectedFailureBug, expectedFailureJournal
+import re
+import time
+import unittest
 
 import common
+
+from common.utils import configuration as cfg
+from common.utils.expectedFailure import expectedFailureJournal
 
 
 RDFS_RANGE = "http://www.w3.org/2000/01/rdf-schema#range"
@@ -43,11 +41,8 @@ XSD_INTEGER = "http://www.w3.org/2001/XMLSchema#integer"
 
 TEST_PREFIX = "http://example.org/ns#"
 
-import re
-import time
 
-
-class OntologyChangeTestTemplate (common.testcase.TrackerTestCase):
+class OntologyChangeTestTemplate (unittest.TestCase):
 
     """
     Template class for the ontology changes tests. The tests are subclasses
@@ -72,17 +67,14 @@ class OntologyChangeTestTemplate (common.testcase.TrackerTestCase):
                                 "test-ontologies", param)
 
     def setUp(self):
-        super(OntologyChangeTestTemplate, self).setUp()
-
-        self.system = TrackerSystemAbstraction()
+        self.sandbox = common.sandbox.TrackerSandbox()
 
     def tearDown(self):
-        self.system.tracker_store_testing_stop()
+        self.store.stop()
 
-        super(OntologyChangeTestTemplate, self).tearDown()
+        self.sandbox.close()
 
     def template_test_ontology_change(self):
-
         self.set_ontology_dirs()
 
         basic_ontologies = self.get_ontology_dir(self.FIRST_ONTOLOGY_DIR)
@@ -90,17 +82,16 @@ class OntologyChangeTestTemplate (common.testcase.TrackerTestCase):
 
         self.__assert_ontology_dates(basic_ontologies, modified_ontologies)
 
-        self.system.tracker_store_testing_start(ontodir=basic_ontologies)
-        self.tracker = self.system.store
+        self.store = common.helpers.StoreHelper()
+        self.store.start(self.sandbox,
+                         ontology_dir=basic_ontologies)
+        self.tracker = self.store
 
         self.insert_data()
 
-        try:
-            # Boot the second set of ontologies
-            self.system.tracker_store_restart_with_new_ontologies(
-                modified_ontologies)
-        except UnableToBootException, e:
-            self.fail(str(self.__class__) + " " + str(e))
+        # Boot the second set of ontologies
+        self.store.stop()
+        self.store.start(self.sandbox, ontology_dir=modified_ontologies)
 
         self.validate_status()
 
@@ -929,7 +920,3 @@ class PropertyRelegationTest (OntologyChangeTestTemplate):
                                     % (self.instance_b))
         self.assertEquals(result[0][0], "content-b-test")
         self.assertEquals(result[0][1], "b-test-n")
-
-
-if __name__ == "__main__":
-    ut.main()

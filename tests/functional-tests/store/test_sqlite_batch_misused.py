@@ -28,13 +28,13 @@ from dbus.mainloop.glib import DBusGMainLoop
 
 from common.utils import configuration as cfg
 import unittest as ut
-from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
+import testcase
 
 # Number of instances per batch
 BATCH_SIZE = 3000
 
 
-class TestSqliteBatchMisused (CommonTrackerStoreTest):
+class TestSqliteBatchMisused (testcase.TrackerStoreTest):
 
     """
     Send big batchSparqlUpdates and run queries at the same time

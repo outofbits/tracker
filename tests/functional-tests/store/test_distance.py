@@ -26,14 +26,14 @@ import random
 
 from common.utils import configuration as cfg
 import unittest as ut
-from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
+import testcase
 
 POINT_COORDS = [
     (0, 0), (1, 1), (2, 2), (3, 3), (4, 4)
 ]
 
 
-class TestDistanceFunctions (CommonTrackerStoreTest):
+class TestDistanceFunctions (testcase.TrackerStoreTest):
 
     """
     Insert some points and get the distance between them.

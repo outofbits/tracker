@@ -61,7 +61,7 @@ class TrackerSandbox(object):
         dbus_process = subprocess.Popen(
             ["dbus-daemon", "--session", "--print-address=1", "--fork"],
             stdout=subprocess.PIPE)
-        dbus_address = self.dbus_process.stdout.readline().rstrip()
+        dbus_address = dbus_process.stdout.readline().rstrip()
 
         os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_address
         info("DBUS_SESSION_BUS_ADDRESS=%s" % dbus_address)

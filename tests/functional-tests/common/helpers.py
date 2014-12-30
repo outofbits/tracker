@@ -27,8 +27,8 @@ import time
 from dbus.mainloop.glib import DBusGMainLoop
 import re
 
-import configuration as cfg
-import options
+import utils.configuration as cfg
+from utils import options
 
 
 class NoMetadataException (Exception):
@@ -94,7 +94,7 @@ class Helper:
         self.bus_admin = dbus.Interface(
             obj, dbus_interface="org.freedesktop.DBus")
 
-    def _start_process(self):
+    def _start_process(self, extra_env=None):
         path = getattr(self,
                        "PROCESS_PATH",
                        os.path.join(cfg.EXEC_PREFIX, self.PROCESS_NAME))
@@ -113,6 +113,11 @@ class Helper:
 
             command = [path] + flags
             log("Starting %s" % ' '.join(command))
+
+            if extra_env:
+                kws['env'] = os.environ.copy()
+                kws['env'].update(extra_env)
+
             return subprocess.Popen([path] + flags, **kws)
 
     def _name_owner_changed_cb(self, name, old_owner, new_owner):
@@ -147,25 +152,24 @@ class Helper:
         self.timeout_id = None
         return False
 
-    def start(self, dbus_address):
+    def start(self, sandbox, extra_env=None):
         """
         Start an instance of process and wait for it to appear on the bus.
         """
 
         if self.bus is None:
-            self._get_bus(dbus_address)
+            self._get_bus(sandbox.dbus_address)
 
         if (self.bus_admin.NameHasOwner(self.BUS_NAME)):
             raise Exception(
                 "Unable to start test instance of %s: already running" % self.PROCESS_NAME)
 
         self.name_owner_match = self.bus.add_signal_receiver(
-            self._name_owner_changed_cb,
-                                                              signal_name="NameOwnerChanged",
-                                                              path="/org/freedesktop/DBus",
-                                                              dbus_interface="org.freedesktop.DBus")
+            self._name_owner_changed_cb, signal_name="NameOwnerChanged",
+                                         path="/org/freedesktop/DBus",
+                                         dbus_interface="org.freedesktop.DBus")
 
-        self.process = self._start_process()
+        self.process = self._start_process(extra_env)
         log('[%s] Started process %i' % (self.PROCESS_NAME, self.process.pid))
 
         self.process_watch_timeout = GLib.timeout_add(
@@ -179,8 +183,6 @@ class Helper:
         self.loop.run()
 
         if not self.available:
-            import pdb
-            pdb.set_trace()
             raise Exception(
                 "%s did not appear on message bus after %i seconds." % (
                     self.BUS_NAME, REASONABLE_TIMEOUT))
@@ -235,8 +237,14 @@ class StoreHelper (Helper):
 
     graph_updated_handler_id = 0
 
-    def start(self, dbus_address):
-        Helper.start(self, dbus_address)
+    def start(self, dbus_address, ontology_dir=None):
+        extra_env = {}
+
+        if ontology_dir:
+            info("TRACKER_DB_ONTOLOGIES_DIR=%s" % ontology_dir)
+            extra_env['TRACKER_DB_ONTOLOGIES_DIR'] = ontology_dir
+
+        Helper.start(self, dbus_address, extra_env)
 
         tracker = self.bus.get_object(cfg.TRACKER_BUSNAME,
                                       cfg.TRACKER_OBJ_PATH)
