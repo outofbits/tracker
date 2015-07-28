@@ -121,7 +121,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'N':
 			case 'n':
-				if (matches (begin, "NOT")) return SparqlTokenType.NOT;
+				switch (begin[2]) {
+				case 'T':
+				case 't':
+					if (matches (begin, "NOT")) return SparqlTokenType.NOT;
+					break;
+				case 'W':
+				case 'w':
+					if (matches (begin, "NOW")) return SparqlTokenType.NOW;
+					break;
+				}
 				break;
 			case 'S':
 			case 's':
@@ -1018,6 +1027,7 @@ public enum Tracker.SparqlTokenType {
 	MINUS,
 	NAMED,
 	NOT,
+	NOW,
 	NULL, /* Non-standard in SPARQL spec */
 	OFFSET,
 	OP_AND,
@@ -1131,6 +1141,7 @@ public enum Tracker.SparqlTokenType {
 		case MINUS: return "`-'";
 		case NAMED: return "`NAMED'";
 		case NOT: return "`NOT'";
+		case NOW: return "`NOW'";
 		case OFFSET: return "`OFFSET'";
 		case OP_AND: return "`&&'";
 		case OP_EQ: return "`='";
