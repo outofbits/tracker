@@ -1011,6 +1011,21 @@ function_sparql_floor (sqlite3_context *context,
 	sqlite3_result_double (context, floor (value));
 }
 
+static void
+function_sparql_rand (sqlite3_context *context,
+                      int              argc,
+                      sqlite3_value   *argv[])
+{
+	gdouble value;
+
+	if (argc != 0) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	sqlite3_result_double (context, g_random_double ());
+}
+
 static inline int
 stmt_step (sqlite3_stmt *stmt)
 {
@@ -1150,6 +1165,10 @@ open_database (TrackerDBInterface  *db_interface,
 	                         NULL, NULL);
 	sqlite3_create_function (db_interface->db, "SparqlFloor", 1, SQLITE_ANY,
 	                         db_interface, &function_sparql_floor,
+	                         NULL, NULL);
+
+	sqlite3_create_function (db_interface->db, "SparqlRand", 0, SQLITE_ANY,
+	                         db_interface, &function_sparql_rand,
 	                         NULL, NULL);
 
 	sqlite3_extended_result_codes (db_interface->db, 0);
